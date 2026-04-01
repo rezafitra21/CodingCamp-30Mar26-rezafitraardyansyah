@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Reza CodingCamp</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f4f6f9;
+    color: #333;
+  }
+
+  h2 {
+    text-align: center;
+    margin-top: 20px;
+    color: #2c3e50;
+  }
+
+  .container {
+    max-width: 1000px;
+    margin: 30px auto;
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  }
+
+  .form-input {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+
+  .form-input input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+  }
+
+  .form-input button {
+    padding: 10px 20px;
+    background: #2600ff;
+    border: none;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  .form-input button:hover {
+    background: #0099ff;
+  }
+
+  .content {
+    display: flex;
+    gap: 25px;
+    align-items: flex-start;
+  }
+
+  .table-container {
+    flex: 3;
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  th, td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  th {
+    background: #2f00ff;
+    color: white;
+    font-weight: 500;
+  }
+
+  tr:hover {
+    background: #f1f7fc;
+  }
+
+  .delete {
+    background: #e74c3c;
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .delete:hover {
+    background: #c0392b;
+  }
+
+  .chart-container {
+    flex: 2;
+    max-width: 350px;
+  }
+
+  canvas {
+    width: 100% !important;
+    height: 300px !important;
+  }
+
+  h3 {
+    margin-top: 15px;
+    text-align: right;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Visualisator Pengeluaran 
+  <h2>dan Anggaran</h2>
+  <h5>Total Saldo: Rp <span id="totalHarga">0</span></h3>
+
+  <div class="form-input">
+    <input type="text" id="nama" placeholder="Nama Item">
+    <input type="number" id="harga" placeholder="Harga">
+    <input type="text" id="kategori" placeholder="Kategori">
+    <button onclick="tambahItem()">Tambah</button>
+  </div>
+
+  <div class="content">
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Nama</th>
+            <th>Harga</th>
+            <th>Kategori</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="list"></tbody>
+      </table>
+    </div>
+
+    <div class="chart-container">
+      <canvas id="chart"></canvas>
+    </div>
+  </div>
+</div>
+
+<script>
+  let data = [];
+
+  const colors = [
+    "#ff6384", "#36a2eb", "#ffce56", "#4bc0c0",
+    "#9966ff", "#ff9f40", "#e84393", "#00b894",
+    "#fd79a8", "#6c5ce7"
+  ];
+
+  function tambahItem() {
+    const nama = document.getElementById("nama").value.trim();
+    const harga = Number(document.getElementById("harga").value);
+    const kategori = document.getElementById("kategori").value.trim();
+
+    if (!nama || !harga || !kategori) {
+      alert("Isi semua field dengan benar!");
+      return;
+    }
+
+    data.push({ nama, harga, kategori });
+
+    document.getElementById("nama").value = "";
+    document.getElementById("harga").value = "";
+    document.getElementById("kategori").value = "";
+
+    render();
+  }
+
+  function hapusItem(index) {
+    data.splice(index, 1);
+    render();
+  }
+
+  let chart;
+
+  function render() {
+    const list = document.getElementById("list");
+    list.innerHTML = "";
+
+    data.forEach((item, index) => {
+      list.innerHTML += `
+        <tr>
+          <td>${item.nama}</td>
+          <td>${item.harga.toLocaleString("id-ID")}</td>
+          <td>${item.kategori}</td>
+          <td><button class="delete" onclick="hapusItem(${index})">Hapus</button></td>
+        </tr>
+      `;
+    });
+
+    const total = data.reduce((sum, item) => sum + item.harga, 0);
+    document.getElementById("totalHarga").innerText = total.toLocaleString("id-ID");
+
+    const kategoriTotal = {};
+    data.forEach(item => {
+      if (!kategoriTotal[item.kategori]) kategoriTotal[item.kategori] = 0;
+      kategoriTotal[item.kategori] += item.harga;
+    });
+
+    const labels = Object.keys(kategoriTotal);
+    const values = Object.values(kategoriTotal);
+
+    if (chart) chart.destroy();
+
+    const ctx = document.getElementById("chart").getContext("2d");
+    chart = new Chart(ctx, {
+      type: "doughnut",
+      data: {
+        labels: labels,
+        datasets: [{
+          data: values,
+          backgroundColor: colors.slice(0, labels.length)
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: "bottom",
+            labels: { color: "#2c3e50" }
+          }
+        }
+      }
+    });
+  }
+
+  render();
+</script>
+
+</body>
+</html>
