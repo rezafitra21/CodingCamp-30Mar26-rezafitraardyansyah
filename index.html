@@ -10,7 +10,7 @@
     font-family: 'Roboto', sans-serif;
     margin: 0;
     padding: 0;
-    background: #f4f6f9;
+    background: #0054d3;
     color: #333;
   }
 
@@ -28,7 +28,7 @@
     border-radius: 12px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
   }
-
+  
   .form-input {
     display: flex;
     gap: 15px;
@@ -91,7 +91,7 @@
   }
 
   .delete {
-    background: #ffffff;
+    background: #810101;
     color: white;
     padding: 6px 12px;
     border: none;
@@ -129,13 +129,13 @@
   <div class="form-input">
     <input type="text" id="nama" placeholder="Nama Item">
     <input type="number" id="harga" placeholder="Harga">
-    <select id="kategori">
-    <option value="Makanan">Makanan</option>
-    <option value="Transportasi">Transportasi</option>
-    <option value="Kesenangan">Kesenangan</option> </select>
+    <input type="text" id="kategori" placeholder="Kategori (bebas)">
     <button onclick="tambahItem()">Tambah</button>
   </div>
-
+<div style="margin-bottom:15px;">
+  <button onclick="sortBy('harga')">Urutkan Harga ↑↓</button>
+  <button onclick="sortBy('kategori')">Urutkan Kategori A-Z</button>
+</div>
   <div class="content">
     <div class="table-container">
       <table>
@@ -159,7 +159,28 @@
 
 <script>
   let data = [];
+  let sortOrderHarga = 'asc'; // default ascending
+  let sortOrderKategori = 'asc'; // default ascending
 
+  function sortBy(field) {
+    if (field === 'harga') {
+    data.sort((a, b) => {
+      if (sortOrderHarga === 'asc') return a.harga - b.harga;
+      else return b.harga - a.harga;
+    });
+    sortOrderHarga = sortOrderHarga === 'asc' ? 'desc' : 'asc';
+  }
+
+    if (field === 'kategori') {
+    data.sort((a, b) => {
+      if (sortOrderKategori === 'asc') return a.kategori.localeCompare(b.kategori);
+      else return b.kategori.localeCompare(a.kategori);
+    });
+    sortOrderKategori = sortOrderKategori === 'asc' ? 'desc' : 'asc';
+  }
+
+  render()
+}
   const colors = [
     "#ff6384", "#36a2eb", "#ffce56", "#4bc0c0",
     "#9966ff", "#ff9f40", "#e84393", "#00b894",
