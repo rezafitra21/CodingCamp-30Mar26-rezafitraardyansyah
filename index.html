@@ -6,6 +6,73 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
+    /* ===== DARK MODE ===== */
+.dark {
+  background-color: #1e1e2f;
+  color: #f1f1f1;
+  transition: background 0.3s, color 0.3s;
+}
+
+.dark .container {
+  background-color: #2a2a3d;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+.dark h2, .dark h3 {
+  color: #f1f1f1;
+}
+
+.dark input {
+  background-color: #3a3a50;
+  color: #fff;
+  border: 1px solid #555;
+}
+
+.dark button {
+  background-color: #4e8cff;
+  color: #fff;
+}
+
+.dark button:hover {
+  background-color: #3a6fcc;
+}
+
+.dark table {
+  background-color: #1f1f2e;
+  color: #f1f1f1;
+}
+
+.dark th {
+  background-color: #4e8cff;
+  color: #fff;
+}
+
+.dark td {
+  color: #f1f1f1;
+}
+
+.dark tr:hover {
+  background-color: #2f2f44;
+}
+
+.dark .delete {
+  background-color: #e74c3c;
+  color: #fff;
+}
+
+.dark .delete:hover {
+  background-color: #c0392b;
+}
+
+.dark .chart-container {
+  background-color: #1f1f2e;
+  border-radius: 12px;
+  padding: 10px;
+}
+
+input, button, table, .container, .chart-container {
+  transition: all 0.3s ease;
+}
   body {
     font-family: 'Roboto', sans-serif;
     margin: 0;
@@ -121,10 +188,11 @@
 </head>
 <body>
 
-<div class="container">
-  <h2>Visualisator Pengeluaran 
-  <h2>dan Anggaran</h2>
-  <h5>Total Saldo: Rp <span id="totalHarga">0</span></h3>
+  <div class="container">
+    <button onclick="toggleMode()" id="modeBtn">🌙 Dark Mode</button>
+    <h2>Visualisator Pengeluaran 
+    <h2>dan Anggaran</h2>
+    <h5>Total Saldo: Rp <span id="totalHarga">0</span></h3>
 
   <div class="form-input">
     <input type="text" id="nama" placeholder="Nama Item">
@@ -158,9 +226,24 @@
 </div>
 
 <script>
+    
+if (localStorage.getItem("mode") === "dark") {
+  document.body.classList.add("dark");
+  document.getElementById("modeBtn").innerText = "☀️ Light Mode";
+}
+
+function toggleMode() {
+  document.body.classList.toggle("dark");
+  const btn = document.getElementById("modeBtn");
+
+  const isDark = document.body.classList.contains("dark");
+  btn.innerText = isDark ? "☀️ Light Mode" : "🌙 Dark Mode";
+  
+  localStorage.setItem("mode", isDark ? "dark" : "light");
+}
   let data = [];
-  let sortOrderHarga = 'asc'; // default ascending
-  let sortOrderKategori = 'asc'; // default ascending
+  let sortOrderHarga = 'asc'
+  let sortOrderKategori = 'asc' 
 
   function sortBy(field) {
     if (field === 'harga') {
